@@ -1,82 +1,61 @@
-# Lightweight React Template for KAVIA
+# SmartNote Frontend (React)
 
-This project provides a minimal React template with a clean, modern UI and minimal dependencies.
+Modern notes UI with Ocean Professional styling (blue + amber accents), responsive layout, and a centralized API client driven by `REACT_APP_*` env vars.
 
 ## Features
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+- Authentication: Sign in / Sign up / Sign out
+  - Client-side validation
+  - Auth tokens stored **in memory only**
+  - Refresh flow via `POST /auth/refresh` when backend supports it
+- Layout: Top navbar + collapsible sidebar + main content
+- Notes module:
+  - Notes list with debounced search
+  - Tag filters
+  - Create / edit / delete
+  - Pinned + Favorite flags
+  - Loading / empty / error states
+- Editor:
+  - Markdown editor (SimpleMDE)
+  - Debounced autosave with save indicator
+- AI actions:
+  - Generate title, Summarize, Expand/Improve
+  - Calls `POST /ai/*` endpoints
+  - Graceful fallback UI when backend is unavailable
+- Local demo mode:
+  - If no backend env var is set, notes are stored in browser `localStorage` so the UI remains usable.
 
-## Getting Started
+## Configuration (env vars)
 
-In the project directory, you can run:
+This app **never hardcodes server URLs**.
 
-### `npm start`
+- `REACT_APP_API_BASE` (preferred): Base URL for REST API, e.g. `https://api.example.com`
+- `REACT_APP_BACKEND_URL` (fallback): Same purpose if `REACT_APP_API_BASE` is not set
+- `REACT_APP_WS_URL` (optional): For future websocket features
 
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+If neither `REACT_APP_API_BASE` nor `REACT_APP_BACKEND_URL` is set, SmartNote runs in **local demo mode**.
 
-### `npm test`
+## Expected Backend API (minimal)
 
-Launches the test runner in interactive watch mode.
+### Auth
+- `POST /auth/login` → `{ accessToken, refreshToken, user }`
+- `POST /auth/register` → `{ accessToken, refreshToken, user }`
+- `POST /auth/refresh` → `{ accessToken, refreshToken?, user? }`
 
-### `npm run build`
+### Notes
+- `GET /notes`
+- `POST /notes`
+- `GET /notes/:id`
+- `PATCH /notes/:id`
+- `DELETE /notes/:id`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### AI
+- `POST /ai/title` → `{ title }`
+- `POST /ai/summarize` → `{ summary }`
+- `POST /ai/expand` → `{ text }`
 
-## Customization
+## Notes on security
 
-### Colors
-
-The main brand colors are defined as CSS variables in `src/App.css`:
-
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
-```
-
-### Components
-
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
-
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
-
-## Learn More
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Access/refresh tokens are kept in memory only; a page reload signs the user out.
+- This is intentional to keep the frontend safe by default and avoid persistence without a clear backend strategy.
+"

@@ -1,49 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import AppShell from "./layout/AppShell";
+import AuthPage from "./pages/AuthPage";
+import NotesPage from "./pages/NotesPage";
+import SettingsPage from "./pages/SettingsPage";
+import TagsPage from "./pages/TagsPage";
+import { useAuth } from "./auth/AuthContext";
 
 // PUBLIC_INTERFACE
-function App() {
-  const [theme, setTheme] = useState('light');
-
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
-
+function ProtectedApp() {
+  /** Routes that require authentication. */
+  const auth = useAuth();
+  if (!auth.isAuthenticated) return <Navigate to="/auth?mode=signin" replace />;
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppShell>
+      <Routes>
+        <Route path="/notes" element={<NotesPage />} />
+        <Route path="/tags" element={<TagsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<Navigate to="/notes" replace />} />
+      </Routes>
+    </AppShell>
   );
 }
 
-export default App;
+// PUBLIC_INTERFACE
+export default function App() {
+  /** SPA router for SmartNote. */
+  return (
+    <Routes>
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/*" element={<ProtectedApp />} />
+    </Routes>
+  );
+}
