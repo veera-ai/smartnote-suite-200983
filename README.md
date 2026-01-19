@@ -1,1 +1,3 @@
-# smartnote-suite-200983
+# Project Repository
+
+This is the initial README file for the project.
